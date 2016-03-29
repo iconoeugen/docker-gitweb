@@ -128,10 +128,6 @@
           "containers": [{
             "name": "gitweb",
             "image": "gitweb",
-            "ports": [{
-              "containerPort": 80,
-              "protocol": "TCP"
-            }],
             "env": [{
               "name": "GIT_PROJECT_NAME",
               "value": "${GIT_PROJECT_NAME}"
@@ -165,8 +161,8 @@
       "ports": [{
         "name": "web",
         "protocol": "TCP",
-        "port": 80,
-        "targetPort": 80
+        "port": 8080,
+        "targetPort": 8080
       }],
       "selector": {
         "name": "gitweb"
@@ -178,7 +174,8 @@
     "status": {
       "loadBalancer": {}
     }
-  }, {
+  },
+  {
     "kind": "Route",
     "apiVersion": "v1",
     "metadata": {
@@ -191,7 +188,7 @@
         "kind": "Service",
         "name": "gitweb"
       },
-      "port": {
+      "port":  {
         "targetPort": "web"
       },
       "tls": {

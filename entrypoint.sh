@@ -19,7 +19,7 @@ elif [ ! -f ${GIT_PROJECT_PATH} ] ; then
   echo "Initialize empty Git repository in ${GIT_PROJECT_PATH}"
   git init --bare ${GIT_PROJECT_PATH}
   cp ${GIT_PROJECT_PATH}/hooks/post-update.sample ${GIT_PROJECT_PATH}/hooks/post-update
-  chmod +x ${GIT_PROJECT_PATH}/hooks/post-update
+  chmod a+x ${GIT_PROJECT_PATH}/hooks/post-update
   pushd ${GIT_PROJECT_PATH} 1>/dev/null 2>&1
   git update-server-info
 
@@ -27,7 +27,7 @@ elif [ ! -f ${GIT_PROJECT_PATH} ] ; then
   git config --file config http.receivepack true
   git config --file config gitweb.owner ${GIT_OWNER}
   popd 1>/dev/null 2>&1
-  chown -R apache ${GIT_PROJECT_PATH}
+  #chown -R apache ${GIT_PROJECT_PATH}
 fi
 
 # httpd won't start correctly if it thinks it is already running.

@@ -3,8 +3,7 @@ gitweb:
     hostname: gitweb.example.test
     build: .
     ports:
-        - "8080:80"
-        - "8443:443"
+        - "8080:8080"
     volumes:
         - /tmp/var/lib/git:/var/lib/git:rw
     environment:
