@@ -96,6 +96,30 @@ To clone the `super` repository from the container started before, use the comma
 git clone http://localhost:8080/git/super.git
 ```
 
+## OpenShift
+
+OpenShift Origin is a distribution of Kubernetes optimized for continuous application development and multi-tenant deployment.
+
+More information:
+- https://www.openshift.org/
+- https://github.com/openshift/origin
+
+The OpenShift *GitWeb application template* is available in *openshift*
+
+### Upload template to OpenShift
+
+Create a new template application in OpenShift (before continue, make sure you are logged in and a new project is created in OpenShift)
+
+``` bash
+oc create -f openshift/gitweb.json
+```
+
+### Create GitWeb application from template
+
+``` bash
+oc new-app gitweb -p GIT_PROJECT_NAME=super
+```
+
 ## Tests
 
 Access the GitWeb UI at: http://localhost:8080/git

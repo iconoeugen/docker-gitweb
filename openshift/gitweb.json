@@ -1,0 +1,218 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "gitweb",
+    "creationTimestamp": null,
+    "annotations": {
+      "description": "Openshift template to start a gitweb server that accepts git push and fetch"
+    }
+  },
+  "objects": [{
+    "kind": "ImageStream",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "centos",
+      "creationTimestamp": null
+    },
+    "spec": {
+      "dockerImageRepository": "centos"
+    },
+    "status": {
+      "dockerImageRepository": ""
+    }
+  },
+  {
+    "kind": "ImageStream",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "gitweb",
+      "creationTimestamp": null
+    },
+    "spec": {},
+    "status": {
+      "dockerImageRepository": ""
+    }
+  },
+  {
+    "kind": "BuildConfig",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "gitweb-build",
+      "creationTimestamp": null
+    },
+    "spec": {
+      "triggers": [{
+        "type": "Generic",
+        "generic": {
+          "secret": "gitweb-trigger-secret"
+        }
+      },
+      {
+        "type": "ImageChange",
+        "imageChange": {}
+      }],
+      "source": {
+        "type": "Git",
+        "git": {
+          "uri": "https://github.com/iconoeugen/docker-gitweb.git"
+        }
+      },
+      "strategy": {
+        "type": "Docker",
+        "dockerStrategy": {
+          "from": {
+            "kind": "ImageStreamTag",
+            "name": "centos:7"
+          }
+        }
+      },
+      "output": {
+        "to": {
+          "kind": "ImageStreamTag",
+          "name": "gitweb:latest"
+        }
+      },
+      "resources": {},
+      "postCommit": {}
+    },
+    "status": {
+      "lastVersion": 0
+    }
+  },
+  {
+    "kind": "DeploymentConfig",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "gitweb",
+      "creationTimestamp": null
+    },
+    "spec": {
+      "strategy": {
+        "type": "Rolling",
+        "rollingParams": {
+          "updatePeriodSeconds": 1,
+          "intervalSeconds": 1,
+          "timeoutSeconds": 120
+        },
+        "resources": {}
+      },
+      "triggers": [{
+        "type": "ImageChange",
+        "imageChangeParams": {
+          "automatic": true,
+          "containerNames": [
+            "gitweb"
+          ],
+          "from": {
+            "kind": "ImageStreamTag",
+            "name": "gitweb:latest"
+          }
+        }
+      }, {
+        "type": "ConfigChange"
+      }],
+      "replicas": 1,
+      "test": false,
+      "selector": {
+        "name": "gitweb"
+      },
+      "template": {
+        "metadata": {
+          "creationTimestamp": null,
+          "labels": {
+            "name": "gitweb"
+          }
+        },
+        "spec": {
+          "containers": [{
+            "name": "gitweb",
+            "image": "gitweb",
+            "ports": [{
+              "containerPort": 80,
+              "protocol": "TCP"
+            }],
+            "env": [{
+              "name": "GIT_PROJECT_NAME",
+              "value": "${GIT_PROJECT_NAME}"
+            }],
+            "resources": {},
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "capabilities": {},
+            "securityContext": {
+              "capabilities": {},
+              "privileged": false
+            }
+          }],
+          "restartPolicy": "Always",
+          "terminationGracePeriodSeconds": 30,
+          "dnsPolicy": "ClusterFirst",
+          "securityContext": {}
+        }
+      }
+    },
+    "status": {}
+  },
+  {
+    "kind": "Service",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "gitweb",
+      "creationTimestamp": null
+    },
+    "spec": {
+      "ports": [{
+        "name": "web",
+        "protocol": "TCP",
+        "port": 80,
+        "targetPort": 80
+      }],
+      "selector": {
+        "name": "gitweb"
+      },
+      "portalIP": "",
+      "type": "ClusterIP",
+      "sessionAffinity": "None"
+    },
+    "status": {
+      "loadBalancer": {}
+    }
+  }, {
+    "kind": "Route",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "gitweb",
+      "creationTimestamp": null
+    },
+    "spec": {
+      "host": "${APPLICATION_DOMAIN}",
+      "to": {
+        "kind": "Service",
+        "name": "gitweb"
+      },
+      "port": {
+        "targetPort": "web"
+      },
+      "tls": {
+        "termination": "edge"
+      }
+    },
+    "status": {}
+  }],
+  "parameters": [
+    {
+      "name": "APPLICATION_DOMAIN",
+      "description": "The exposed hostname that will route to the",
+      "value": ""
+    },
+    {
+      "name": "GIT_PROJECT_NAME",
+      "description": "git project repository name",
+      "value": "dummy"
+    }
+  ],
+  "labels": {
+    "template": "gitweb"
+  }
+}
