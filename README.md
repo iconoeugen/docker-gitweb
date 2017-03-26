@@ -4,6 +4,10 @@ A docker image to run GitWeb
 
 > GitWeb website: [git-scm.com](https://git-scm.com/docs/gitweb)
 
+## Overview
+
+This docker image will start a Gitweb server with only one Git repository.
+
 ## Quick start
 
 ### Clone this project:
@@ -15,16 +19,16 @@ cd docker-gitweb
 
 ### Make your own GitWeb image
 
-Build your image:
+Build your own image:
 
 ``` bash
 docker build -t gitweb_gitweb .
 ```
 
-Run your image:
+Run your built image:
 
 ``` bash
-docker run --name gitweb_test -p 8080:80 --detach gitweb_gitweb
+docker run --name gitweb_test -p 8080:8080 --detach gitweb_gitweb
 ```
 
 Check running container:
@@ -44,6 +48,18 @@ Remove stopped cotainer:
 ``` bash
 docker rm gitweb_test
 ```
+
+### Make Git repository persitent
+
+The repository is store within the container under the path `/var/lib/git`. To make the repository persitent, just mount
+a directory into the container:
+
+``` bash
+docker run --name gitweb_test -p 8080:8080 -v /tmp/gitweb:/var/lib/git --detach gitweb_gitweb
+```
+
+Make sure that the user `uid=48(apache)` (or whatever user you use when starting the container with option `-u`) has
+write permissions to the directory on the host.
 
 ## Docker compose
 
@@ -87,7 +103,7 @@ docker-compose rm
 Environment variables can be set by adding the --env argument in the command line, for example:
 
 ``` bash
-docker run --env GIT_PROJECT_NAME="super" --name gitweb_test -p 8080:80 --detach gitweb_gitweb
+docker run --env GIT_PROJECT_NAME="super" --name gitweb_test -p 8080:8080 --detach gitweb_gitweb
 ```
 
 To clone the `super` repository from the container started before, use the command:
